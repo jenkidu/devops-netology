@@ -1,5 +1,4 @@
-### **Домашнее задание "Операционные системы. Лекция 2.**
-1. **На пекции мы познакомились с `node_exporter`**...  
+1. **На лекции мы познакомились с `node_exporter`**...  
 + поместите его в автозагрузку,  
 + предусмотрите возможность добавления опций к запускаемому процессу через внешний файл (посмотрите, например, на `systemctl cat cron`),  
 + удостоверьтесь, что с помощью systemctl процесс корректно стартует, завершается, а после перезагрузки автоматически поднимается.
@@ -13,8 +12,8 @@ After=network-online.target
 
 [Service]  
 Type=simple  
-ExecStart=/usr/local/bin/node_exporter   
-EnvironmentFile=/etc/default/node_exporter  
+ExecStart=/usr/local/bin/node_exporter/node_exporter $OPTIONS 
+EnvironmentFile=-/usr/local/bin/node_exporter/options 
 
 [Install]  
 WantedBy=multi-user.target  
@@ -33,7 +32,7 @@ WantedBy=multi-user.target
      CGroup: /system.slice/node_exporter.service
              └─4501 /usr/local/bin/node_exporter`  
 Процесс запускается после перезапуска (процесса, системы)  
-[Ссылка на скрин с браузера](https://disk.yandex.ru/i/PR4oMzvrN50LPg)
+
 
 ---
 2. **Ознакомьтесь с опциями node_exporter и выводом /metrics по-умолчанию. Приведите несколько опций, которые вы бы выбрали для базового мониторинга хоста по CPU, памяти, диску и сети.**
@@ -77,7 +76,7 @@ node_network_transmit_bytes_total{device="ens33"} 8.492856e+06
 ```config.vm.network "forwarded_port", guest: 19999, host: 19999```
 
 **Ответ:**  
-Установил, изменил конфиг, пробросил порт, ознакомился с метриками - [выглядит приятно и информативно.](https://disk.yandex.ru/i/vWZiGjrGyKvRSQ)  
+Установил, изменил конфиг, пробросил порт, ознакомился с метриками, выглядит приятно и информативно.
 
 ---
 
@@ -103,16 +102,12 @@ node_network_transmit_bytes_total{device="ens33"} 8.492856e+06
 6. **Запустите любой долгоживущий процесс (не ```ls```, который отработает мгновенно, а, например, ```sleep 1h```) в отдельном неймспейсе процессов; покажите, что ваш процесс работает под PID 1 через ```nsenter```. Для простоты работайте в данном задании под root (```sudo -i```). Под обычным пользователем требуются дополнительные опции (```--map-root-user```) и т.д.**
 
 **Ответ:**  
-```jenkidu@netology:~$ ps -e | grep sleep```  
-   ```2270 pts/1    00:00:00 sleep```  
-```jenkidu@netology:~$ sudo -i```  
-```root@netology:~# nsenter --target 2270 --pid --mount --no-fork```  
-```root@netology:/# ps```  
-    ```PID TTY          TIME CMD```  
-   ```2358 pts/0    00:00:00 sudo```  
-   ```2359 pts/0    00:00:00 bash```  
-   ```2372 pts/0    00:00:00 bash```  
-   ```2387 pts/0    00:00:00 ps```  
+``` unshare --fork --pid --mount-proc ping ya.ru```  
+затем в другом окне терминала ищу его `PID`   
+   ```ps aux | grep ping```  **1084**  
+   ```nsenter --target 1084 --pid --mount```  
+   ```root 1 0.0 0.0 5768 1028 pts/2 S+ 22:44 0:00 ping ya.ru```
+
    
    ---
 
@@ -126,5 +121,5 @@ node_network_transmit_bytes_total{device="ens33"} 8.492856e+06
 ```ulimit -u 30 ``` - ограничит число процессов для пользователя до 30.
 
 ---
-*Это  конец...*
+*Это конец...*
 
